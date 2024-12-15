@@ -64,29 +64,35 @@ void fiboHeap_Insert(int num){
 	node_num++;
 }
 
-struct myList *find(int num){
-	int loop_num = node_num;
+struct myList *find(int num, struct myList *tree){
 
-	struct myList *trav = root;
-	while(loop_num){
+	struct myList *trav = tree;
+	struct myList *end = tree;
+
+	while(1){
 		if(trav->val == num) return trav;
 	
+	
+		if(trav->child!=NULL){
+			struct myList *findchild = find(num, trav->child);
+			if(findchild!=NULL) return findchild;
+		}
+		
 		trav = trav->Rsiblings;
-		if(trav==root) trav = trav->child;
-		loop_num--;
+		
+		if(trav==end) break;
 	}
-	printf("ERROR: Wrong Input");
 	return NULL;
 }
 
 void fiboHeap_DecreaseKey(int num, int decrease_num){
-	struct myList *num_pos = find(num);
+	struct myList *num_pos = find(num, root);
 	
 }
 
 void fiboHeap_Delete(int num){
-	struct myList *num_pos = find(num);
-	
+	struct myList *num_pos = find(num, root);
+	if(num_pos==NULL) printf("ERROR");
 }
 
 void fiboHeap_link(struct myList *node1, struct myList *node2){
