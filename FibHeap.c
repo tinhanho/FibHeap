@@ -10,7 +10,8 @@ struct myList{
 	struct myList *Rsiblings;
 	struct myList *child;
 	struct myList *parent;
-	int ISTRAVEL;
+	int ISTRAVEL; // FOR USELESS step but this hw needs it
+	int marked;
 };
 
 int node_num;
@@ -63,13 +64,34 @@ void fiboHeap_Insert(int num){
 	node_num++;
 }
 
-void fiboHeap_DecreaseKey(void){
+struct myList *find(int num){
+	int loop_num = node_num;
+
+	struct myList *trav = root;
+	while(loop_num){
+		if(trav->val == num) return trav;
+	
+		trav = trav->Rsiblings;
+		if(trav==root) trav = trav->child;
+		loop_num--;
+	}
+	printf("ERROR: Wrong Input");
+	return NULL;
+}
+
+void fiboHeap_DecreaseKey(int num, int decrease_num){
+	struct myList *num_pos = find(num);
+	
+}
+
+void fiboHeap_Delete(int num){
+	struct myList *num_pos = find(num);
 	
 }
 
 void fiboHeap_link(struct myList *node1, struct myList *node2){
 	struct myList *org_child = NULL;
-	//printf("\nnode1: %d, node2: %d \n", node1->val, node2->val);
+	printf("\nnode1: %d, node2: %d \n", node1->val, node2->val);
 	if(node1->val < node2->val){ //node1 is parent
 		root = node1;
 		//Remove from root list
@@ -129,8 +151,6 @@ void Consolidate(void){
 	struct myList *trav = root;
 	int thebreak=1;
 
-	int loop_num = node_num;
-
 	// Init
 	for(int i=0; i<10; i++){
 		myPointerArray[i]=NULL;
@@ -144,6 +164,15 @@ void Consolidate(void){
 	}
 	
 	struct myList *x = NULL;
+	
+	//reset
+	trav = root;
+	while(1){
+		trav->ISTRAVEL = 0;
+	
+		trav = trav->Rsiblings;
+		if(trav==root) break;
+	}	
 	
 	while(1){
 		trav = root;
@@ -177,17 +206,9 @@ void Consolidate(void){
 		}
 		else{
 			fiboHeap_link(myPointerArray[degree], x);
-			//printf("FL: %d , %d", myPointerArray[degree]->val, tmp->val);
 		}
 		x=NULL;
 	}
-
-	//reset
-	trav = root->Rsiblings;
-	while(trav!=root){
-		trav->ISTRAVEL=0;
-		trav=trav->Rsiblings;
-	}	
 }
 
 void fiboHeap_ExtMin(void){
@@ -201,13 +222,23 @@ void fiboHeap_ExtMin(void){
 	}
 	else{ // min has child
 		if(root==min) root = min->child;
-		printf("ROOT: %d\n", root->val);
+		//printf("ROOT: %d\n", root->val);
 
 		if(min->Rsiblings!=min){
-			min->Lsiblings->Rsiblings = min->child;
-			min->child->Lsiblings->Rsiblings = min->Rsiblings;
-			min->Rsiblings->Lsiblings = min->child->Lsiblings;
-			min->child->Lsiblings = min->Lsiblings;
+			// printf("TEST: %d\n", min->child->val);
+			// printf("TEST2: %d\n", min->child->Rsiblings->val);
+			// printf("TEST3: %d\n", min->Rsiblings->val);		
+			if(min->child->Rsiblings!=min->child){
+				min->Rsiblings->Rsiblings = min->child->Rsiblings;
+				min->child->Rsiblings->Lsiblings = min->Rsiblings;
+			}
+			else{
+				min->child->Lsiblings = min->Lsiblings;
+				min->child->Lsiblings->Rsiblings = min->child;
+			}
+			min->child->Rsiblings = min->Rsiblings;
+			min->Rsiblings->Lsiblings = min->child;
+			// printf("TEST4: %d\n", min->child->Rsiblings->val);
 		}
 	}
 	
@@ -219,10 +250,7 @@ void fiboHeap_ExtMin(void){
 }
 
 
-// void fiboHeap_Delete(int num, int degree){
-	
-	
-// }
+
 /********************************************/
 
 
@@ -264,8 +292,15 @@ int main(){
 		else if(command==2){
 			fiboHeap_ExtMin();
 		}
+		else if(command==3){
+			fiboHeap_Delete(atoi(input));
+		}
 		else if(command==4){
-
+			int num = atoi(input);
+			while(*input!=' ') input++;
+			input++;
+			int decrease_num = atoi(input);
+			fiboHeap_DecreaseKey(num, decrease_num);
 			break;
 		}
 		else if(command==5){
